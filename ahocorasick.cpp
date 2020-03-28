@@ -9,15 +9,23 @@
 
 class Node {
 
+    char value;
     std::set<std::string> retVals;
     std::unordered_map<char, Node *> children;
-    Node *fail;
 
+    Node *fail;
 public:
-    char value;
 
     Node(char init_val)
             : value(init_val) {};
+
+    ~Node(){
+        if (!children.empty()) {
+            for (auto &itr: children) {
+                delete(itr.second);
+            }
+        }
+    }
 
     Node *getFail() {
         return fail;
@@ -156,6 +164,7 @@ public:
                 }
             }
         }
+        delete(start);
         return output;
     }
 

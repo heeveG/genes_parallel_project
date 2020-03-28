@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <set>
 #include "ahocorasick.cpp"
+#include <queue>
 
 int main() {
 
@@ -18,6 +19,7 @@ int main() {
             std::cout << ' ' << it;
         std::cout << std::endl;
     }
+
 
 
     return 0;
