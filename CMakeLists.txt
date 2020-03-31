@@ -3,4 +3,4 @@ project(ac_oneT)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(ac_oneT main.cpp ahocorasick.cpp)
+add_executable(ac_oneT src/main/main.cpp src/util/ahocorasick.cpp)

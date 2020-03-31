@@ -1,7 +1,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <set>
-#include "ahocorasick.cpp"
+#include "../util/ahocorasick.cpp"
 
 int main() {
 

@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <set>
 #include <queue>
-#include "ahocorasick.h"
+#include "../../include/ahocorasick.h"
 
 class Node {
 
