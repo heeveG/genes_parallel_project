@@ -1,11 +1,6 @@
-//
-// Created by heeve on 27.03.20.
-//
+#include "../../includes/ahocorasick.h"
 
-#include <unordered_map>
-#include <set>
-#include <queue>
-#include "../../include/ahocorasick.h"
+//#define BOOST_ASIO_SEPARATE_COMPILATION
 
 class Node {
 
@@ -60,10 +55,10 @@ public:
 class AhoCorasick {
 
     Node *start = new Node('&');
-    std::set<std::string> markers;
+    std::unordered_map<int, std::string> markers;
 public:
 
-    explicit AhoCorasick(std::set<std::string> &markersInit) :
+    explicit AhoCorasick(std::unordered_map<int, std::string> &markersInit) :
             markers(markersInit) {
         start->setFail(start);
         setUpTrie();
@@ -74,19 +69,20 @@ public:
         Node *topNode;
         Node *node;
 
-        for (auto &marker: markers) {
+        for (int marker_num = 0; marker_num < markers.size(); ++marker_num) {
+            std::cout << marker_num << ", " << markers[marker_num] << std::endl;
             topNode = start;
-            for (int i = 0; i < marker.size(); ++i) {
-                node = topNode->childAt(marker[i]);
+            for (int i = 0; i < markers[marker_num].size(); ++i) {
+                node = topNode->childAt(markers[marker_num][i]);
                 if (node == nullptr) {
                     node = topNode;
-                    node->addChild(marker[i]);
-                    topNode = node->childAt(marker[i]);
+                    node->addChild(markers[marker_num][i]);
+                    topNode = node->childAt(markers[marker_num][i]);
                 } else {
                     topNode = node;
                 }
-                if (i == marker.size() - 1) {
-                    topNode->addReturnValue(marker);
+                if (i == markers[marker_num].size() - 1) {
+                    topNode->addReturnValue(markers[marker_num]);
                 }
             }
         }
@@ -165,18 +161,3 @@ public:
     }
 
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
