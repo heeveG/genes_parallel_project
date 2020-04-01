@@ -1,9 +1,11 @@
-#include "../../includes/app.h"
+#include "../includes/app.h"
 
 //#define BOOST_ASIO_SEPARATE_COMPILATION
 
 std::unordered_map<int, std::string> *getMarker(std::unordered_map<int, std::string> &markers_map) {
-    const std::string path = "../data/markers.csv";
+//    const std::string path = "../data/markers.csv";
+    std::cout << CSV_DIR << std::endl;
+    const std::string path = CSV_DIR;
     std::ifstream markers_file;
     markers_file.open(path, std::ios_base::in);
 

@@ -1,7 +1,3 @@
-//
-// Created by sophi on 3/28/2020.
-//
-
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -10,6 +6,7 @@
 #include <unordered_map>
 #include <set>
 #include <string>
-#include "../src/util/ahocorasick.cpp"
+#include "../src/ahocorasick.cpp"
+#include "../includes/csv_file.h"
 #include <boost/algorithm/string.hpp>
 //#includes <boost/asio/impl/src.hpp>

@@ -1,4 +1,4 @@
-#include "../../includes/ahocorasick.h"
+#include "../includes/ahocorasick.h"
 
 //#define BOOST_ASIO_SEPARATE_COMPILATION
 

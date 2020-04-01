@@ -1,0 +1,1 @@
+#cmakedefine CSV_DIR "@DIR_STRING@"
