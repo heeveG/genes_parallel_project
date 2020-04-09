@@ -1,18 +1,31 @@
-#include "../includes/ahocorasick.h"
+//
+// Created by heeve on 27.03.20.
+//
 
-//#define BOOST_ASIO_SEPARATE_COMPILATION
+#include <unordered_map>
+#include <set>
+#include <queue>
+#include "../includes/ahocorasick.h"
 
 class Node {
 
+    char value;
     std::set<std::string> retVals;
     std::unordered_map<char, Node *> children;
-    Node *fail;
 
+    Node *fail;
 public:
-    char value;
 
     Node(char init_val)
             : value(init_val) {};
+
+    ~Node(){
+        if (!children.empty()) {
+            for (auto &itr: children) {
+                delete(itr.second);
+            }
+        }
+    }
 
     Node *getFail() {
         return fail;
@@ -70,7 +83,7 @@ public:
         Node *node;
 
         for (int marker_num = 0; marker_num < markers.size(); ++marker_num) {
-            std::cout << marker_num << ", " << markers[marker_num] << std::endl;
+        // std::cout << marker_num << ", " << markers[marker_num] << std::endl; // xxx
             topNode = start;
             for (int i = 0; i < markers[marker_num].size(); ++i) {
                 node = topNode->childAt(markers[marker_num][i]);
@@ -152,6 +165,7 @@ public:
                 }
             }
         }
+        delete(start);
         return output;
     }
 
