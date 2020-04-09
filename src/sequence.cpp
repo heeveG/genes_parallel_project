@@ -47,16 +47,16 @@ Sequence Sequence::operator~(){
     return reverseComplement();
 }
 
-bool Sequence::test(){
-    Sequence s("AAAATTTTCCCCGGGG");
-    Sequence rc = ~s;
-    if (s.mStr != "AAAATTTTCCCCGGGG" ){
-        cerr << "Failed in reverseComplement() expect AAAATTTTCCCCGGGG, but get "<< s.mStr;
-        return false;
-    }
-    if (rc.mStr != "CCCCGGGGAAAATTTT" ){
-        cerr << "Failed in reverseComplement() expect CCCCGGGGAAAATTTT, but get "<< rc.mStr;
-        return false;
-    }
-    return true;
-}
+//bool Sequence::test(){
+//    Sequence s("AAAATTTTCCCCGGGG");
+//    Sequence rc = ~s;
+//    if (s.mStr != "AAAATTTTCCCCGGGG" ){
+//        cerr << "Failed in reverseComplement() expect AAAATTTTCCCCGGGG, but get "<< s.mStr;
+//        return false;
+//    }
+//    if (rc.mStr != "CCCCGGGGAAAATTTT" ){
+//        cerr << "Failed in reverseComplement() expect CCCCGGGGAAAATTTT, but get "<< rc.mStr;
+//        return false;
+//    }
+//    return true;
+//}

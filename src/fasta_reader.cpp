@@ -49,9 +49,9 @@ void FastqReader::readToBuf() {
 void FastqReader::init(){
     if (ends_with(mFilename, ".gz")){
         mZipFile = gzopen(mFilename.c_str(), "r");
-        std::cout << "mZipFile = " << mZipFile << std::endl; // xxx
+//        std::cout << "mZipFile = " << mZipFile << std::endl; // xxx
         mZipped = true;
-        std::cout << "gzrewind(mZipFile) = " << gzrewind(mZipFile) << std::endl; // xxx
+//        std::cout << "gzrewind(mZipFile) = " << gzrewind(mZipFile) << std::endl; // xxx
         gzrewind(mZipFile);
     }
     else {
@@ -180,22 +180,18 @@ Read* FastqReader::read(){
     }
 
     string name = getLine();
-    std::cout << "name = " << name << std::endl; // xxx
-    // name should start with @
-// reads the whole file line by line
-// xxx
-//    while((name.empty() && !(mBufUsedLen >= mBufDataLen && eof())) || (!name.empty() && name[0]!='@')){
-//        name = getLine();
-//        std::cout << "name = " << name << std::endl; // xxx
-//    }
+//    std::cout << "name = " << name << std::endl;
+
+    while((name.empty() && !(mBufUsedLen >= mBufDataLen && eof()))) {
+    // || (!name.empty() && name[0]!='@')){
+        name = getLine();
+    }
 
     if(name.empty()){
-        std::cout << "name is empty " << std::endl; // xxx
         return NULL;
     }
 
     string sequence = getLine();
-//    std::cout << "sequence = " << sequence << std::endl; // xxx
     string strand = getLine();
 //    std::cout << "strand = " << strand << std::endl; // xxx
 
@@ -204,20 +200,22 @@ Read* FastqReader::read(){
         string quality = string(sequence.length(), 'K');
         return new Read(name, sequence, strand, quality, mPhred64);
     }
-    else {
-        string quality = getLine();
-        if(quality.length() != sequence.length()) {
-            cerr << "ERROR: sequence and quality have different length:" << endl;
-            cerr << name << endl;
-            cerr << sequence << endl;
-            cerr << strand << endl;
-            cerr << quality << endl;
-            return NULL;
-        }
-        return new Read(name, sequence, strand, quality, mPhred64);
-    }
-
-    return NULL;
+//    else {
+//        string quality = getLine();
+//        if(quality.length() != sequence.length()) {
+//            cerr << "ERROR: sequence and quality have different length:" << endl;
+//            cerr << name << endl;
+//            cerr << sequence << endl;
+//            cerr << strand << endl;
+//            cerr << quality << endl;
+//            return NULL;
+//        }
+//        std::cout << " we are here " << std::endl;
+//        return new Read(name, sequence, strand, quality, mPhred64);
+    return new Read(name, sequence, strand);
+//    }
+//
+//    return NULL;
 }
 
 void FastqReader::close(){
