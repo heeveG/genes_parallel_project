@@ -7,6 +7,7 @@
 #include <queue>
 #include "ahocorasick.h"
 
+
 class Node {
 
     char value;
@@ -71,10 +72,14 @@ class AhoCorasick {
     std::set<std::string> markers;
 public:
 
-    explicit AhoCorasick(std::set<std::string> &markersInit) :
+    AhoCorasick(std::set<std::string> &markersInit) :
             markers(markersInit) {
         start->setFail(start);
         setUpTrie();
+    }
+
+    ~AhoCorasick(){
+        delete(start);
     }
 
     void setUpTrie() {
@@ -143,7 +148,7 @@ public:
     }
 
 
-    std::unordered_map<std::string, std::set<int>> matchWords(std::string text) {
+    void matchWords(std::string text, std::unordered_map<std::string, std::set<int>>& matched ) {
 
         std::unordered_map<std::string, std::set<int>> output;
         Node *node = start;
@@ -164,9 +169,9 @@ public:
                 }
             }
         }
-        delete(start);
-        return output;
+        matched = output;
     }
+
 
 
     Node *getStart() {

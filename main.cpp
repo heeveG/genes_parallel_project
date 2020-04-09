@@ -1,25 +1,43 @@
 #include <iostream>
-#include <unordered_map>
 #include <set>
 #include "ahocorasick.cpp"
-#include <queue>
+#include <thread>
+#include <vector>
+
+
 
 int main() {
+    int numThreads = 10;
 
     std::set<std::string> strings = {"he", "she", "hers", "his"};
-    std::string text = "ihejshershis";
+    std::string text = "ihejshershisblahheshehers";
 
-    AhoCorasick a(strings);
-    std::unordered_map<std::string, std::set<int>> matched = a.matchWords(text);
+    auto *a = new AhoCorasick(strings);
+
+    std::vector<myMap> maps(numThreads);
+    std::vector<std::thread> threads;
 
 
-    for (auto &itr: matched) {
-        std::cout << itr.first << ' ';
-        for (int it : itr.second)
-            std::cout << ' ' << it;
-        std::cout << std::endl;
+    for (int i = 0; i < numThreads; ++i){
+        threads.emplace_back(&AhoCorasick::matchWords, a, text, std::ref(maps[i]));
     }
 
+    for (auto& t: threads){
+        t.join();
+    }
+
+    for (auto &mp: maps) {
+        for (auto &itr: mp) {
+            std::cout << itr.first << ' ';
+            for (int it : itr.second)
+                std::cout << ' ' << it;
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+
+    }
+
+    delete(a);
 
 
     return 0;

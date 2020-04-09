@@ -5,10 +5,6 @@
 #ifndef AC_ONET_AHOCORASICK_H
 #define AC_ONET_AHOCORASICK_H
 
-
-class ahocorasick {
-
-};
-
+typedef std::unordered_map<std::string, std::set<int>> myMap;
 
 #endif //AC_ONET_AHOCORASICK_H
