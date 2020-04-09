@@ -3,8 +3,7 @@
 //#define BOOST_ASIO_SEPARATE_COMPILATION
 
 std::unordered_map<int, std::string> *getMarker(std::unordered_map<int, std::string> &markers_map) {
-//    const std::string path = "../data/markers.csv";
-    std::cout << CSV_DIR << std::endl;
+    // read csv
     const std::string path = CSV_DIR;
     std::ifstream markers_file;
     markers_file.open(path, std::ios_base::in);
@@ -33,6 +32,26 @@ std::unordered_map<int, std::string> *getMarker(std::unordered_map<int, std::str
 
 
 int main(int argc, char* argv[]) {
+    // read fasta
+    FastqReader reader("../data/archive/pseudo88.fasta.gz");
+    Read* r1 = NULL;
+    r1=reader.read();
+    int counter = 0;
+    while(true){
+        r1=reader.read();
+        if(r1 == NULL) {
+            std::cout << "read nothing" <<  counter << std::endl;
+            break;
+        }
+        if (r1->mSeq.mStr.length() != 0) {
+            std::cout << "allal" << std::endl;
+            std::cout << r1->mSeq.mStr << std::endl;
+        }
+        delete r1;
+        counter++;
+    }
+
+    // read markers
     std::unordered_map<int, std::string> markers_map;
     getMarker(markers_map);
 
@@ -48,6 +67,8 @@ int main(int argc, char* argv[]) {
             std::cout << ' ' << it;
         std::cout << std::endl;
     }
+
+
 
 
     return 0;
