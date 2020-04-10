@@ -7,6 +7,7 @@
 #include <set>
 #include <string>
 #include "../src/ahocorasick.cpp"
+#include "../includes/fasta_reader.h"
 #include "../includes/csv_file.h"
 #include <boost/algorithm/string.hpp>
 //#includes <boost/asio/impl/src.hpp>
