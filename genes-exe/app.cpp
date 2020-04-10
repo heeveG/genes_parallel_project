@@ -43,13 +43,9 @@ int main(int argc, char* argv[]) {
     Read* r1 = NULL;
 
     int counter = 0;
-    while(true) {
-        if (counter == 1) break;
-        r1=reader.read();
-        if(r1 == NULL) {
-            break;
-        }
-        counter++;
+    r1=reader.read();
+    if(r1 == NULL) {
+        std::cout << "Error" << std::endl;
     }
     std::cout << "Name ::: " << r1->mName << std::endl;
 
