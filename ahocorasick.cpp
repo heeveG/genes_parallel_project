@@ -20,10 +20,10 @@ public:
     Node(char init_val)
             : value(init_val) {};
 
-    ~Node(){
+    ~Node() {
         if (!children.empty()) {
             for (auto &itr: children) {
-                delete(itr.second);
+                delete (itr.second);
             }
         }
     }
@@ -78,8 +78,8 @@ public:
         setUpTrie();
     }
 
-    ~AhoCorasick(){
-        delete(start);
+    ~AhoCorasick() {
+        delete (start);
     }
 
     void setUpTrie() {
@@ -148,18 +148,19 @@ public:
     }
 
 
-    void matchWords(std::string text, std::unordered_map<std::string, std::set<int>>& matched ) {
+    void
+    matchWords(std::string text, int startInx, int endInx,  std::unordered_map<std::string, std::set<int>> &matched) {
 
         std::unordered_map<std::string, std::set<int>> output;
         Node *node = start;
         Node *child;
-        for (int i = 0; i < text.size(); ++i) {
+        for (int i = startInx; i < endInx; ++i) {
             child = node->childAt(text[i]);
             if (child != nullptr) {
                 node = child;
                 // ??? Don't know if it's a good practice
                 for (auto &returns: node->getRetVals()) {
-                    output[returns].insert(i - returns.size() + 1);
+                    output[returns].insert(i - returns.size() + 1 );
                 }
             } else {
                 if (node != start) {
@@ -171,7 +172,6 @@ public:
         }
         matched = output;
     }
-
 
 
     Node *getStart() {
