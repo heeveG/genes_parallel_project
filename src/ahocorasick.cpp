@@ -5,8 +5,11 @@
 #include <unordered_map>
 #include <set>
 #include <queue>
-#include "ahocorasick.h"
-
+#include "../headers/ahocorasick.h"
+#include <cmath>
+#include <iostream>
+#include <zconf.h>
+#include <string>
 
 class Node {
 
@@ -18,7 +21,8 @@ class Node {
 public:
 
     Node(char init_val)
-            : value(init_val) {};
+            : value(init_val), fail(nullptr), retVals(), children() {
+    };
 
     ~Node() {
         if (!children.empty()) {
@@ -37,27 +41,35 @@ public:
     }
 
 
-    std::set<std::string> &getRetVals() {
-        return retVals;
+    std::set<std::string> *getRetVals() {
+        return &retVals;
     }
 
     void addReturnValue(const std::string &added) {
         retVals.insert(added);
     }
 
-    void addChild(const char &letter) {
-        children.insert({letter, new Node(letter)});
+    Node *addChild(const char &letter) {
+        auto added = childAt(letter);
+        if (added == nullptr) {
+            added = new Node(letter);
+            children[letter] = added;
+
+        }
+        return added;
+
+
     }
 
     void setFail(Node *failNode) {
         fail = failNode;
-        for (auto &s: failNode->getRetVals()) {
+        for (auto &s: *failNode->getRetVals()) {
             addReturnValue(s);
         }
     }
 
     Node *childAt(const char &letter) {
-        auto itr = children.find(letter);
+        auto itr = (children).find(letter);
         if (itr != children.end()) {
             return children.at(letter);
         }
@@ -69,12 +81,18 @@ public:
 class AhoCorasick {
 
     Node *start = new Node('&');
-    std::set<std::string> markers;
+    std::vector<std::string> markers;
+    unsigned long longestMarker = 0;
 public:
 
-    AhoCorasick(std::set<std::string> &markersInit) :
+    AhoCorasick() {
+        start->setFail(start);
+    }
+
+    explicit AhoCorasick(std::vector<std::string> &markersInit) :
             markers(markersInit) {
         start->setFail(start);
+
         setUpTrie();
     }
 
@@ -82,26 +100,26 @@ public:
         delete (start);
     }
 
+    void addMarker(std::string marker) {
+
+        if (marker.empty())
+            return;
+
+        Node *node = start;
+        for (const auto &ch: marker) {
+            node = node->addChild(ch);
+        }
+        node->addReturnValue(marker);
+
+
+    }
+
     void setUpTrie() {
         // Add nodes to the trie
-        Node *topNode;
-        Node *node;
-
+        std::string cut;
         for (auto &marker: markers) {
-            topNode = start;
-            for (int i = 0; i < marker.size(); ++i) {
-                node = topNode->childAt(marker[i]);
-                if (node == nullptr) {
-                    node = topNode;
-                    node->addChild(marker[i]);
-                    topNode = node->childAt(marker[i]);
-                } else {
-                    topNode = node;
-                }
-                if (i == marker.size() - 1) {
-                    topNode->addReturnValue(marker);
-                }
-            }
+            longestMarker = std::max(longestMarker, marker.size());
+            addMarker(marker);
         }
         addFails();
     }
@@ -112,8 +130,8 @@ public:
         std::queue<Node *> q;
         std::unordered_map<char, Node *> *children = start->getChildren();
         for (auto &itr : *children) {
-            q.push(itr.second);
             itr.second->setFail(start);
+            q.push(itr.second);
         }
 
         Node *parent;
@@ -149,9 +167,8 @@ public:
 
 
     void
-    matchWords(std::string text, int startInx, int endInx,  std::unordered_map<std::string, std::set<int>> &matched) {
+    matchWords(std::string text, int startInx, int endInx, std::unordered_map<std::string, std::set<int>> &matched) {
 
-        std::unordered_map<std::string, std::set<int>> output;
         Node *node = start;
         Node *child;
         for (int i = startInx; i < endInx; ++i) {
@@ -159,8 +176,8 @@ public:
             if (child != nullptr) {
                 node = child;
                 // ??? Don't know if it's a good practice
-                for (auto &returns: node->getRetVals()) {
-                    output[returns].insert(i - returns.size() + 1 );
+                for (auto &returns: *node->getRetVals()) {
+                    matched[returns].insert(i - returns.size() + 1);
                 }
             } else {
                 if (node != start) {
@@ -170,12 +187,15 @@ public:
                 }
             }
         }
-        matched = output;
     }
 
 
     Node *getStart() {
         return start;
+    }
+
+    int getMaxMarker() {
+        return longestMarker;
     }
 
 };
