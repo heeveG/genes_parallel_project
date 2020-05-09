@@ -15,8 +15,6 @@ void read_fasta(const std::string& path, concurrent_que<std::string>* q) {
 
     std::string container;
 
-    std::getline(input, container);
-    container.clear();
 
     auto const chunk_size = std::size_t{BUFSIZ};
 

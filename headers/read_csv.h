@@ -5,8 +5,8 @@
 #ifndef AC_ONET_READ_CSV_H
 #define AC_ONET_READ_CSV_H
 
-#include "../src/ahocorasick.cpp"
-#include "../headers/concurrent_q.h"
+#include "../src/ahocorasick.cu"
+#include "concurrent_q.h"
 
 void read_csv(std::string path, std::vector<std::string>& markers);
 #endif //AC_ONET_READ_CSV_H

@@ -2,3 +2,5 @@ cmake-build-debug
 .idea
 pseudo88.fasta
 data
+CMakeFiles
+DEBUG

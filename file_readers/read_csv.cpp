@@ -3,11 +3,7 @@
 #include<fstream>
 #include <boost/algorithm/string.hpp>
 
-void buildMarkerTrie(AhoCorasick *trie, concurrent_que<std::string> &q) {
-    while (q.back() != " ") {
-        trie->addMarker(q.pop());
-    }
-}
+
 
 
 void split(std::vector<std::string> &results, std::string &original, char separator) {
@@ -17,12 +13,15 @@ void split(std::vector<std::string> &results, std::string &original, char separa
     std::string str;
     while (next != end) {
         str = std::string(start, next);
-        results.emplace_back(str.substr(str.find(',') + 1));
+        if (str.find(',') !=  std::string::npos)
+            results.emplace_back(str);
         start = next + 1;
         next = std::find(start, end, separator);
     }
     str = std::string(start, next);
-    results.emplace_back(str.substr(str.find(',') + 1));
+    if (str.find(',') !=  std::string::npos)
+        results.emplace_back(str);
+
 }
 
 
@@ -55,8 +54,8 @@ void read_csv(std::string path, std::vector<std::string> &markers) {
 
     fin.close();
     split(markers, str, '\n');
-//    markers.resize(30000);
-
+//    markers.resize(3340138);
+    markers.resize(200000);
 }
 
 
