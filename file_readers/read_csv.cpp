@@ -28,8 +28,6 @@ void split(std::vector<std::string> &results, std::string &original, char separa
 void read_csv(std::string path, std::vector<std::string> &markers) {
     std::ifstream fin(path);
     std::string line;
-    unsigned long maxMarker = 0;
-    int limit = 1000000;
     // Open an existing file
 
     if (!fin.good()) {
@@ -54,8 +52,10 @@ void read_csv(std::string path, std::vector<std::string> &markers) {
 
     fin.close();
     split(markers, str, '\n');
-//    markers.resize(3340138);
-    markers.resize(200000);
+    markers.resize(3340138);
+//    markers.resize(6000);
+
+//    markers.resize(7000000);
 }
 
 

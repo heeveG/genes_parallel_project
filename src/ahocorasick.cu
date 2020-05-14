@@ -8,73 +8,36 @@
 #include <string>
 #include <thrust/device_vector.h>
 
-
 namespace aho_corasick {
-
-
     class Node {
 
-        typedef Node *node_ptr;
-
     public:
-        char value;
-        int *cudaRets;
-        int *cudaChildren;
+        int children[4];
+        size_t markerHash = 0;
+        int markerId;
 
-        int retsCount;
-        std::vector<int> retVals;
-        std::vector<int> children;
-
-
-        Node(char init_val)
-                : value(init_val), retVals(), retsCount(0) {
-            children.resize(4);
-            std::fill(children.begin(), children.end(), 0);
+        Node() {
+            memset(children, 0, 4 * sizeof(int));
         };
 
-//        ~Node() {
-//            if (!children.empty()) {
-//                for (int i = 0; i < children.size(); ++i) {
-//                    if (children[i] != nullptr)
-//                        delete (children[i]);
-//                }
-//            }
-//        }
 
-
-        void addReturnValue(int added) {
-            retVals.push_back(added);
+        void addReturnValue(size_t hash, int id) {
+            markerHash = hash;
+            markerId = id;
         }
 
         int childIndex(char letter) {
-            switch (letter) {
-                case 'A':
-                    return 0;
-                case 'C':
-                    return 1;
-                case 'G':
-                    return 2;
-                case 'T':
-                    return 3;
-                default:
-                    return -1;
-            }
+            return abs(letter % 65 / 2 % 5 - 1);
         }
 
-        node_ptr addChild(const char letter, std::vector<node_ptr> &nodes) {
+        int addChild(const char letter, int &size) {
             auto childIndx = childAt(letter);
             if (childIndx == 0) {
                 int index = childIndex(letter);
-
-                assert(index != -1); // childIndex method should always handle all possible inputs
-
-                int newItem = nodes.size();
-                node_ptr newNode = new Node(letter);
-                nodes.push_back(newNode);
-                children[index] = newItem;
-                return newNode;
+                children[index] = size;
+                return size;
             }
-            return nodes[childIndx];
+            return childIndx;
         }
 
 
@@ -91,17 +54,14 @@ namespace aho_corasick {
     };
 
     class AhoCorasick {
-        typedef Node *node_ptr;
+
     public:
-
-        node_ptr start = new Node('&');
-
-
         std::vector<std::string> markers;
+        int nodeNum = 0;
+        int capacity = 1;
+        Node *nodes = new Node[capacity];
 
-
-        std::vector<node_ptr> nodes{1};
-        unsigned long longestMarker = 0;
+        std::unordered_map<size_t, std::set<int>> markerIdMap;
 
         AhoCorasick() {
         }
@@ -110,39 +70,68 @@ namespace aho_corasick {
                 markers(markersInit) {
 
             setUpTrie();
+
         }
 
         ~AhoCorasick() {
-            delete (start);
+            delete[] (nodes);
         }
 
 
         void setUpTrie() {
-            nodes.reserve(2 * markers.size());
-            nodes[0] = start;
-            // Add nodes to the trie
-            node_ptr node;
+            reserve(2 * markers.size());
+            addNode();
+            std::hash<std::string> hash_fn;
+//            // Add nodes to the trie
             for (auto &markerItem: markers) {
-
-                int markerId;
-                try {
-                    markerId = std::stoi(markerItem.substr(0, markerItem.find(',')));
-                }
-                catch (std::invalid_argument) {
+                if (markerItem.empty())
                     continue;
-                }
+                int markerId;
+
+                markerId = std::stoi(markerItem.substr(0, markerItem.find(',')));
+
                 std::string marker = markerItem.substr(markerItem.find(',') + 1);
-                longestMarker = std::max(longestMarker, marker.size());
+
                 if (marker.empty())
                     continue;
-                node = start;
-                for (const auto &ch: marker) {
-                    node = node->addChild(ch, nodes);
-                }
-                node->addReturnValue(markerId);
 
+                int next = 0;
+
+                size_t hash = hash_fn(marker);
+                if (markerIdMap.find(hash) == markerIdMap.end()) {
+                    for (const auto &ch: marker) {
+                        next = nodes[next].addChild(ch, nodeNum);
+                        if (next == nodeNum) {
+                            addNode();
+                        }
+                    }
+                    nodes[next].addReturnValue(hash, markerId);
+                }
+
+                markerIdMap[hash].insert(markerId);
             }
+        };
+
+        void reserve(int num) {
+            if (capacity < num) {
+                Node *newNodes = new Node[num + 1];
+                std::copy(nodes, nodes + nodeNum + 1, newNodes);
+                delete[]nodes;
+                nodes = newNodes;
+                capacity = num + 1;
+            }
+
+        }
+
+        void addNode() {
+            Node *newNode = new Node();
+            if (nodeNum == capacity) {
+                reserve(2 * capacity);
+            }
+
+            nodes[nodeNum] = *newNode;
+            ++nodeNum;
         }
     };
-};
 
+}

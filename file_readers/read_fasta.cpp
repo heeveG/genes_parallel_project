@@ -28,5 +28,11 @@ void read_fasta(const std::string& path, concurrent_que<std::string>* q) {
         container += input.gcount() != chunk_size ? chunk.substr(0, input.gcount()) : chunk;
     }
     input.close();
+    for (int i = 0; i < container.size(); ++i){
+        if (container[i] == '>'){
+            container.erase(i, container.find('\n', i) - i + 1);
+        }
+    }
+
     q->push(container);
 }
