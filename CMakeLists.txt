@@ -13,10 +13,9 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_FLAGS -pthread)
 
+add_executable (genome main.cpp file_readers/read_fasta.cpp file_readers/read_csv.cpp oneapi/oneapi_parallel.cpp)
 
-project (genome)
-add_subdirectory (src)
-
+target_link_libraries(genome OpenCL sycl)
 
 
 

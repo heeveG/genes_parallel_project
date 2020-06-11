@@ -1,6 +1,6 @@
-#include "../headers/read_csv.h"
-#include "../headers/read_fasta.h"
-#include "../headers/oneapi_parallel.h"
+#include "headers/read_csv.h"
+#include "headers/read_fasta.h"
+#include "headers/oneapi_parallel.h"
 #include <iostream>
 #include <thread>
 #include <vector>
