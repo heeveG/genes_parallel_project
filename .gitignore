@@ -1,7 +1,5 @@
 .idea
 CMakeCache.txt
-genome.zip
-genome_done.zip
 cmake_install.cmake
 /CMakeFiles
 /src/CMakeFiles
