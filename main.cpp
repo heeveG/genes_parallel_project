@@ -51,13 +51,18 @@ int main() {
 
     fastaThread.join();
 
+    delete (a);
+
+    auto end_time = get_current_time_fenced();
+
     std::cout << "Execution completed" << std::endl;
+
+    std::cout << "Markers: " << st.size();
 
     std::cout << "\noneApi time: " << (double) to_us(end_oneapi - start_oneapi) / 1000000.0 << "\n";
 
-    std::cout << "Total time: " << (double) to_us(end_oneapi - start_time) / 1000000.0 << "\n";
+    std::cout << "Total time: " << (double) to_us(end_time - start_time) / 1000000.0 << "\n";
 
-    delete (a);
 
     return 0;
 }

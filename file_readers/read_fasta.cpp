@@ -3,33 +3,38 @@
 #include <deque>
 #include "../headers/read_fasta.h"
 #include <filesystem>
+#include <archive.h>
+#include <archive_entry.h>
+
 namespace fs = std::filesystem;
 
-void read_fasta(const std::string& path, concurrent_que<std::string>* q) {
+void read_fasta(const std::string& file, concurrent_que<std::string>* q) {
 
 
-    std::ifstream input(path);
-
-    if (!input.good()) {
-        std::cerr << "Error opening '" << "'. Bailing out." << std::endl;
-        return;
-    }
-
+    struct archive *a;
+    struct archive_entry *entry;
     std::string container;
 
+    a = archive_read_new();
+    archive_read_support_filter_all(a);
+    archive_read_support_format_raw(a);
+    int r = archive_read_open_filename(a, file.c_str(), 10240); // Note 1
+    if (r != ARCHIVE_OK)
+        exit(1);
+    r = 1;
 
-    auto const chunk_size = std::size_t{BUFSIZ};
+    auto const entry_size = std::size_t{BUFSIZ};
+    if (archive_read_next_header(a, &entry) == ARCHIVE_OK)
+        archive_entry_set_size(entry, entry_size);
 
-
-    std::string chunk;
-    chunk.resize(chunk_size);
-    while (
-            input.read(&chunk[0], chunk_size) ||
-            input.gcount()
-            ) {
-        container += input.gcount() != chunk_size ? chunk.substr(0, input.gcount()) : chunk;
+    std::string text = std::string(entry_size, 0);
+    while (r != 0) {
+        r = archive_read_data(a, &text[0], entry_size);
+        if (!text.empty()) {
+            container += r != entry_size ? text.substr(0, r) : text;
+        }
     }
-    input.close();
+    archive_free(a);
     for (int i = 0; i < container.size(); ++i){
         if (container[i] == '>'){
             container.erase(i, container.find('\n', i) - i + 1);
