@@ -38,17 +38,15 @@ void matchWords(const char *str, size_t *matched, aho_corasick::Node *dVec, int 
     aho_corasick::Node *node;
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
-    int index;
     for (int iter = i; iter < size; iter += stride) {
         node = &dVec[0];
         while (i < size) {
             char letter = str[i];
-            index = (letter - 65) / 2;
-            if (index == 6) {
+            if (letter == 'N') {
                 break;
             }
 
-            int nodesIndex = node->children[abs(index % 5 - 1)];
+            int nodesIndex = node->children[abs((letter - 65) / 2 % 5 - 1)];
             if (nodesIndex == 0) {
                 break;
             }
@@ -71,10 +69,12 @@ int main() {
     concurrent_que<std::string> qFasta{};
 
     // read csv
+    auto start_t = get_current_time_fenced();
 
     std::vector<std::string> st;
+    auto markers_start = get_current_time_fenced();
     read_csv("../data/markers.csv", st);
-
+    auto markers_end = get_current_time_fenced();
     std::cout << "Finished reading csv\n";
 
 
@@ -102,32 +102,28 @@ int main() {
     char *cudaStr;
     size_t *cudaMatched;
     aho_corasick::Node *devNodes;
+
     auto startCopying = get_current_time_fenced();
-
-    cudaMallocManaged((void **) &cudaStr, fasta.size());
-    cudaMallocManaged((void **) &cudaMatched, st.size() * sizeof(size_t));
-
-
-    cudaMemcpy(cudaStr, fasta.data(), fasta.size(), cudaMemcpyHostToDevice);
-    cudaMemset(cudaMatched, 0, st.size() * sizeof(size_t));
-
     if (cudaMalloc((void **) &devNodes, a->nodeNum * sizeof(aho_corasick::Node)) == cudaErrorMemoryAllocation) {
         exit(1);
     }
     cudaMemcpy(devNodes, a->nodes, a->nodeNum * sizeof(aho_corasick::Node), cudaMemcpyHostToDevice);
 
+
     int blockSize = 256;
     int numBlocks = ((int) fasta.size() + blockSize - 1) / blockSize;
 
-    std::cout << "Copied \n";
 
     auto startMatching = get_current_time_fenced();
+
+    cudaMallocManaged((void **) &cudaStr, fasta.size());
+    cudaMallocManaged((void **) &cudaMatched, st.size() * sizeof(size_t));
+    cudaMemcpy(cudaStr, fasta.data(), fasta.size(), cudaMemcpyHostToDevice);
+    cudaMemset(cudaMatched, 0, st.size() * sizeof(size_t));
 
     matchWords << < numBlocks, blockSize >> > (cudaStr, cudaMatched, devNodes, fasta.size());
 
     cudaDeviceSynchronize();
-
-    auto endMatching = get_current_time_fenced();
 
 
     auto *matches = (size_t *) malloc(st.size() * sizeof(size_t));
@@ -136,6 +132,7 @@ int main() {
     }
     cudaMemcpy(matches, cudaMatched, st.size() * sizeof(size_t), cudaMemcpyDeviceToHost);
 
+    auto endMatching = get_current_time_fenced();
 
     int count = 0;
     for (int i = 0; i < st.size(); ++i) {
@@ -143,12 +140,18 @@ int main() {
             count += a->markerIdMap[matches[i]].size();
         }
     }
+    auto end_t = get_current_time_fenced();
 
     std::cout << "count : " << count << "\n";
 
     std::cout << to_us(startMatching - startCopying) << " time to copy\n";
 
-    std::cout << to_us(endMatching - startMatching) << " time to match\n";
+
+    std::cout << "Markers: " << st.size() << "\n";
+    std::cout << "Trie build time: " << (double) to_us(c2 - c1) / 1000000.0 << "\n";
+    std::cout << "Mathcing time: " << (double) to_us(endMatching - startMatching) / 1000000.0 << "\n";
+    std::cout << "Total time: " << (double) to_us(end_t - start_t) / 1000000.0 << "\n";
+    std::cout << "Read markers.csv time: " << (double) to_us(markers_end - markers_start) / 1000000.0 << "\n";
 
 
     delete (a);

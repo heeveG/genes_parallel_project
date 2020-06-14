@@ -52,10 +52,10 @@ void read_csv(std::string path, std::vector<std::string> &markers) {
 
     fin.close();
     split(markers, str, '\n');
-    markers.resize(3340138);
-//    markers.resize(6000);
+//    markers.resize(3340138);
+    markers.resize(7000000);
 
-//    markers.resize(7000000);
+//    markers.resize(6000);
 }
 
 
